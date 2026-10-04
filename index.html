@@ -96,7 +96,7 @@ p{margin:0}
   <p class="count" id="ropeCount"></p>
   <div class="sw" id="ropeSw"></div>
 
-  <p class="label en">ACCENT CORD 1.4mm<span>アクセントコード</span></p>
+  <p class="label en">ACCENT CORD<span>アクセントコード</span></p>
   <div class="chips" id="microFam"></div>
   <input class="find" id="microFind" type="search" placeholder="番号・色名で探す（例：AC-010 / gold）">
   <p class="count" id="microCount"></p>
@@ -113,7 +113,7 @@ p{margin:0}
 </div>
 <p class="pg-foot en">© 2026 404Lab All Rights Reserved.</p>
 
-<script src="data.js?v=20261004114201"></script>
+<script src="data.js?v=20261004114358"></script>
 <script>
 (function () {
   var FAMS = [["all", "すべて"], ["red", "レッド・ピンク"], ["yellow", "オレンジ・イエロー"], ["green", "グリーン"], ["blue", "ブルー"], ["purple", "パープル"], ["brown", "ブラウン・ベージュ"], ["mono", "ホワイト・グレー・ブラック"], ["mix", "柄・ミックス"]];
@@ -274,7 +274,7 @@ p{margin:0}
     $("capRope").textContent = "実物写真｜ロープ " + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）";
     $("refMicro").src = "img/mp/" + m.id + ".jpg";
     $("refMicro").alt = m.n;
-    $("capMicro").textContent = "実物写真｜アクセントコード " + m.id + " " + m.n + "（1.4mm）";
+    $("capMicro").textContent = "実物写真｜アクセントコード " + m.id + " " + m.n;
     try { history.replaceState(null, "", "#" + r.id + "," + m.id + "," + mt.id); } catch (e) {}
   }
 
