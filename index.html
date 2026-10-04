@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>404Lab Order Color Simulator｜お取り寄せカラー</title>
-<meta name="description" content="404Labのハンドメイドドッグリード。お取り寄せ（長期納品）のロープ・マイクロコード・金具の色の組み合わせを試せるシミュレーターです。">
+<meta name="description" content="404Labのハンドメイドドッグリード。お取り寄せ（長期納品）のロープ・アクセントコード・金具の色の組み合わせを試せるシミュレーターです。">
 <style>
 :root{--bg:#121110;--bg2:#0b0a09;--tx:#f2ede6;--gold:#c9a86a;--sub:#8d867d;--dim:#6f6961;--line:#2a2724}
 html,body{margin:0;background:var(--bg2)}
@@ -69,7 +69,7 @@ p{margin:0}
 <div id="app">
   <div class="head">
     <p class="t en">404Lab ORDER COLOR SIMULATOR</p>
-    <p class="s">ロープ × マイクロコード × 金具の組み合わせを試せます</p>
+    <p class="s">ロープ × アクセントコード × 金具の組み合わせを試せます</p>
     <p class="s">お取り寄せカラー（長期納品）の一覧です。仕入先の在庫状況により、さらにお時間をいただく場合があります。</p>
   </div>
   <div class="tabs" id="size">
@@ -96,9 +96,9 @@ p{margin:0}
   <p class="count" id="ropeCount"></p>
   <div class="sw" id="ropeSw"></div>
 
-  <p class="label en">MICRO CORD 1.4mm<span>マイクロコード</span></p>
+  <p class="label en">ACCENT CORD 1.4mm<span>アクセントコード</span></p>
   <div class="chips" id="microFam"></div>
-  <input class="find" id="microFind" type="search" placeholder="番号・色名で探す（例：MC-010 / gold）">
+  <input class="find" id="microFind" type="search" placeholder="番号・色名で探す（例：AC-010 / gold）">
   <p class="count" id="microCount"></p>
   <div class="sw" id="microSw"></div>
 
@@ -274,7 +274,7 @@ p{margin:0}
     $("capRope").textContent = "実物写真｜ロープ " + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）";
     $("refMicro").src = "img/mp/" + m.id + ".jpg";
     $("refMicro").alt = m.n;
-    $("capMicro").textContent = "実物写真｜マイクロコード " + m.id + " " + m.n + "（1.4mm）";
+    $("capMicro").textContent = "実物写真｜アクセントコード " + m.id + " " + m.n + "（1.4mm）";
     try { history.replaceState(null, "", "#" + r.id + "," + m.id + "," + mt.id); } catch (e) {}
   }
 
@@ -349,7 +349,7 @@ p{margin:0}
   }
   $("copyBtn").addEventListener("click", function () {
     var r = ropeById(state.rope), m = microById(state.micro), mt = METALS[state.metal === "G" ? 1 : 0];
-    copyText("【404Lab お取り寄せカラー】\nロープ：" + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）\nマイクロコード：" + m.id + " " + m.n + "\n金具：" + mt.n, "コピーしました。DMに貼り付けてお送りください");
+    copyText("【404Lab お取り寄せカラー】\nロープ：" + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）\nアクセントコード：" + m.id + " " + m.n + "\n金具：" + mt.n, "コピーしました。DMに貼り付けてお送りください");
   });
   $("linkBtn").addEventListener("click", function () { copyText(location.href, "リンクをコピーしました"); });
 
@@ -363,7 +363,7 @@ p{margin:0}
     stats = { rope: range(0), acc: range(1) };
     ropeF = sampleF(0, 0.9); accF = sampleF(1, 0.7);
 
-    /* URLの #10N-003,MC-010,G から組み合わせを復元 */
+    /* URLの #10N-003,AC-010,G から組み合わせを復元 */
     var hs = decodeURIComponent(location.hash.slice(1)).split(",");
     var hr = ropeById(hs[0]);
     if (hr) { state.size = hr.s; state.rope = hr.id; } else state.rope = firstRope(state.size);
