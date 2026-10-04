@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404Lab Order Color Simulator｜お取り寄せカラー</title>
+<meta name="description" content="404Labのハンドメイドドッグリード。お取り寄せ（長期納品）のロープ・マイクロコード・金具の色の組み合わせを試せるシミュレーターです。">
+<style>
+:root{--bg:#121110;--bg2:#0b0a09;--tx:#f2ede6;--gold:#c9a86a;--sub:#8d867d;--dim:#6f6961;--line:#2a2724}
+html,body{margin:0;background:var(--bg2)}
+body{padding:0 16px 40px;font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;font-weight:300;color:var(--tx)}
+*{box-sizing:border-box}
+p{margin:0}
+.en{font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif}
+.pg-top{max-width:720px;margin:0 auto;padding:22px 0 0;text-align:center}
+.pg-top a{color:var(--sub);text-decoration:none;letter-spacing:.3em;font-size:12px}
+#app{max-width:720px;margin:24px auto;padding:34px 18px 26px;background:var(--bg);border-radius:14px}
+.head{text-align:center;margin-bottom:22px}
+.head .t{font-size:15px;letter-spacing:.42em;padding-bottom:14px;margin-bottom:14px;position:relative}
+.head .t:after{content:"";position:absolute;left:50%;bottom:0;width:40px;height:1px;margin-left:-20px;background:var(--gold)}
+.head .s{font-size:12px;margin-top:6px;color:var(--sub);letter-spacing:.05em;line-height:1.7}
+.tabs{display:flex;justify-content:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.tabs button,.chips button{appearance:none;border:1px solid #4a4540;background:transparent;color:var(--sub);border-radius:999px;cursor:pointer;font-family:inherit}
+.tabs button{padding:7px 24px;font-size:13px;letter-spacing:.2em;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif}
+.tabs button.on,.chips button.on{border-color:var(--gold);color:var(--gold)}
+.stage canvas{display:block;width:100%;height:auto}
+.copy{text-align:right;font-size:9px;color:var(--dim);margin:6px 2px 0}
+.now{text-align:center;font-size:13px;letter-spacing:.08em;margin:16px 0 6px;line-height:1.8}
+.now b{font-weight:400;color:var(--gold);margin-right:6px}
+.now .x{margin:0 10px;color:var(--gold)}
+.act{display:flex;justify-content:center;gap:10px;margin:12px 0 22px;flex-wrap:wrap}
+.act button{appearance:none;cursor:pointer;padding:11px 22px;border-radius:999px;font-size:13px;letter-spacing:.1em;font-family:inherit}
+.act .main{background:var(--gold);color:var(--bg);border:0;font-weight:400}
+.act .ghost{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+.toast{text-align:center;font-size:12px;color:var(--gold);height:16px;margin-top:-14px;margin-bottom:10px}
+.ref{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:30px}
+.ref figure{margin:0}
+.ref img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-radius:6px;background:#1c1a18}
+.ref figcaption{font-size:10px;color:var(--sub);margin-top:6px;letter-spacing:.04em;line-height:1.5}
+.label{font-size:11px;letter-spacing:.32em;font-weight:400;color:var(--gold);margin:0 0 12px}
+.label span{font-family:"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;letter-spacing:.05em;color:var(--sub);margin-left:10px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chips button{padding:5px 12px;font-size:11px;letter-spacing:.04em}
+.find{width:100%;background:#1c1a18;border:1px solid #3a3632;border-radius:8px;color:var(--tx);font:inherit;font-size:16px;padding:9px 12px;margin-bottom:12px}
+.find::placeholder{color:var(--dim)}
+.count{font-size:11px;color:var(--dim);margin-bottom:10px}
+.sw{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:14px 8px;margin-bottom:30px;max-height:520px;overflow-y:auto;padding:4px 2px}
+.sw button{appearance:none;border:0;background:transparent;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit;color:var(--sub)}
+.sw img{width:54px;height:54px;border-radius:50%;object-fit:cover;border:3px solid var(--bg);box-shadow:0 0 0 1px #3a3632;background:#1c1a18}
+.sw button.on img{box-shadow:0 0 0 1.5px var(--gold)}
+.sw .cd{font-size:10px;color:var(--gold);letter-spacing:.04em}
+.sw .nm{font-size:9px;line-height:1.3;text-align:center;word-break:break-word}
+.sw button.on .nm{color:var(--tx)}
+.metal{display:flex;gap:22px;margin-bottom:30px}
+.metal button{appearance:none;border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--sub);font-size:10px;letter-spacing:.1em;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif}
+.metal i{width:48px;height:48px;border-radius:50%;border:3px solid var(--bg);box-shadow:0 0 0 1px #3a3632}
+.metal button.on i{box-shadow:0 0 0 1.5px var(--gold)}
+.metal button.on{color:var(--tx)}
+.note{font-size:10px;color:var(--dim);line-height:1.8;border-top:1px solid var(--line);padding-top:14px}
+.pg-links{max-width:720px;margin:0 auto;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.pg-links a{display:inline-block;padding:13px 28px;border-radius:999px;font-size:13px;letter-spacing:.12em;text-decoration:none}
+.pg-shop{background:var(--gold);color:var(--bg)}
+.pg-ig{border:1px solid var(--gold);color:var(--gold)}
+.pg-foot{text-align:center;font-size:10px;letter-spacing:.2em;color:#5a544d;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="pg-top"><a class="en" href="https://404lab.base.shop/">404Lab — HANDMADE DOG GEAR</a></div>
+<div id="app">
+  <div class="head">
+    <p class="t en">404Lab ORDER COLOR SIMULATOR</p>
+    <p class="s">ロープ × マイクロコード × 金具の組み合わせを試せます</p>
+    <p class="s">お取り寄せカラー（長期納品）の一覧です。仕入先の在庫状況により、さらにお時間をいただく場合があります。</p>
+  </div>
+  <div class="tabs" id="size">
+    <button type="button" data-v="10" class="on">10mm</button>
+    <button type="button" data-v="8">8mm</button>
+  </div>
+  <div class="stage"><canvas id="cv" width="1200" height="340"></canvas></div>
+  <p class="copy">※掲載画像の無断転載・無断使用を禁止します。© 404Lab</p>
+  <p class="now" id="now"></p>
+  <div class="act">
+    <button type="button" class="main" id="copyBtn">この組み合わせをコピー</button>
+    <button type="button" class="ghost" id="linkBtn">リンクをコピー</button>
+  </div>
+  <p class="toast" id="toast"></p>
+  <div class="ref">
+    <figure><img id="refRope" alt=""><figcaption id="capRope"></figcaption></figure>
+    <figure><img id="refMicro" alt=""><figcaption id="capMicro"></figcaption></figure>
+  </div>
+
+  <p class="label en">ROPE<span>ロープカラー</span></p>
+  <div class="chips" id="ropeMat"></div>
+  <div class="chips" id="ropeFam"></div>
+  <input class="find" id="ropeFind" type="search" placeholder="番号・色名で探す（例：10N-003 / vino）">
+  <p class="count" id="ropeCount"></p>
+  <div class="sw" id="ropeSw"></div>
+
+  <p class="label en">MICRO CORD 1.4mm<span>マイクロコード</span></p>
+  <div class="chips" id="microFam"></div>
+  <input class="find" id="microFind" type="search" placeholder="番号・色名で探す（例：MC-010 / gold）">
+  <p class="count" id="microCount"></p>
+  <div class="sw" id="microSw"></div>
+
+  <p class="label en">HARDWARE<span>金具カラー</span></p>
+  <div class="metal" id="metal"></div>
+
+  <p class="note">※実物の写真（10mmのリード）の色を置き換えたイメージです。柄物ロープは柄の雰囲気を再現したもので、実際の柄の出方とは異なります。実際の色・柄は下の「実物写真」でご確認ください。<br>※実物写真は仕入先 Paracord.eu の商品写真です。画面の表示環境により実際の色と異なって見える場合があります。<br>※ご注文の際は「この組み合わせをコピー」で番号をコピーして、Instagram の DM などでお知らせください。<br>※金具のGoldは変更オプション（追加料金）です。<br>※掲載画像の無断転載・無断使用を禁止します。© 404Lab</p>
+</div>
+<div class="pg-links">
+  <a class="pg-shop" href="https://404lab.base.shop/">ショップを見る</a>
+  <a class="pg-ig" href="https://www.instagram.com/404lab.doggear/">Instagram で相談する</a>
+</div>
+<p class="pg-foot en">© 2026 404Lab All Rights Reserved.</p>
+
+<script src="data.js"></script>
+<script>
+(function () {
+  var FAMS = [["all", "すべて"], ["red", "レッド・ピンク"], ["yellow", "オレンジ・イエロー"], ["green", "グリーン"], ["blue", "ブルー"], ["purple", "パープル"], ["brown", "ブラウン・ベージュ"], ["mono", "ホワイト・グレー・ブラック"], ["mix", "柄・ミックス"]];
+  var MATS = [["all", "すべての素材"], ["Nylon", "ナイロン"], ["PPM", "PPM"]];
+  var MAT_JA = { Nylon: "ナイロン", PPM: "PPM" };
+  /* 金具カラー：写真はSilver。Goldは写真の明暗を金色の階調に置き換える（既存シミュレーターと同じ） */
+  var METALS = [
+    { id: "S", n: "SILVER", orig: true, dot: ["#6f6f6f", "#f4f4f4", "#9a9a9a"] },
+    { id: "G", n: "GOLD", ramp: [[0, "#261906"], [0.3, "#6e4f1c"], [0.6, "#b88f3e"], [0.8, "#e0c071"], [0.93, "#f6e3a6"], [1, "#fffbe8"]], dot: ["#7a5a22", "#f6e3a6", "#b88f3e"] }
+  ];
+
+  var state = { size: "10", rope: null, micro: MICRO_DATA[0].id, metal: "S", ropeMat: "all", ropeFam: "all", microFam: "all" };
+  var $ = function (id) { return document.getElementById(id); };
+  var cv = $("cv"), ctx = cv.getContext("2d");
+  var imgs = {}, photo, maskD, harlD, stats, ropeF, accF, cache = {};
+
+  function hexRgb(h) { var n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+  function lum(d, i) { return 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; }
+  function ropeById(id) { for (var i = 0; i < ROPE_DATA.length; i++) if (ROPE_DATA[i].id === id) return ROPE_DATA[i]; return null; }
+  function microById(id) { for (var i = 0; i < MICRO_DATA.length; i++) if (MICRO_DATA[i].id === id) return MICRO_DATA[i]; return null; }
+  function firstRope(size) { for (var i = 0; i < ROPE_DATA.length; i++) if (ROPE_DATA[i].s === size) return ROPE_DATA[i].id; }
+
+  /* ===== 写真の明暗を保ったまま色を置き換える（既存シミュレーターと同じ方式） ===== */
+  function range(ch) {
+    var d = photo.data, hist = [], n = 0, i;
+    for (i = 0; i < 256; i++) hist.push(0);
+    for (i = 0; i < d.length; i += 4) if (maskD[i + ch] > 220) { hist[Math.round(lum(d, i))]++; n++; }
+    function pct(p) { var s = 0; for (var v = 0; v < 256; v++) { s += hist[v]; if (s >= n * p) return v; } return 255; }
+    var lo = pct(0.02), hi = pct(0.985), ref = pct(0.75);
+    return { lo: lo, hi: hi, ref: Math.max(0.05, (ref - lo) / (hi - lo)) };
+  }
+  function factor(L, st, k) {
+    var s = Math.min(1, Math.max(0, (L - st.lo) / (st.hi - st.lo)));
+    return 1 + (Math.min(1.8, Math.pow(s / st.ref, 0.85)) - 1) * k;
+  }
+  function shadeV(c, f) { return f <= 1 ? c * f : c + (255 - c) * Math.min(1, f - 1) * 0.5; }
+  function shadeInto(o, i, col, f, w) { for (var k = 0; k < 3; k++) o[i + k] = o[i + k] * (1 - w) + shadeV(col[k], f) * w; }
+
+  /* 測り方（明るさ30〜97%の平均）に使う、ロープ・コード部分の陰影の値 */
+  function sampleF(ch, k) {
+    var d = photo.data, st = stats[ch === 0 ? "rope" : "acc"], arr = [];
+    for (var i = 0; i < d.length; i += 4) if (maskD[i + ch] > 220) arr.push(factor(lum(d, i), st, k));
+    arr.sort(function (a, b) { return a - b; });
+    return arr.slice(Math.floor(arr.length * 0.3), Math.floor(arr.length * 0.97)).filter(function (_, i) { return i % 7 === 0; });
+  }
+  /* 仕入先の写真で測った色(t)と、シミュレーター上の見た目の平均が同じになる色を求める */
+  function calib(hex, F) {
+    var key = hex + F.length;
+    if (cache[key]) return cache[key];
+    var t = hexRgb(hex), out = [];
+    for (var k = 0; k < 3; k++) {
+      var lo = 0, hi = 255;
+      for (var it = 0; it < 18; it++) {
+        var mid = (lo + hi) / 2, s = 0;
+        for (var j = 0; j < F.length; j++) s += shadeV(mid, F[j]);
+        if (s / F.length < t[k]) lo = mid; else hi = mid;
+      }
+      out.push(Math.round((lo + hi) / 2));
+    }
+    return (cache[key] = out);
+  }
+  function rampLut(ramp) {
+    var t = [];
+    for (var v = 0; v < 256; v++) {
+      var s = v / 255, k = 1;
+      while (k < ramp.length - 1 && ramp[k][0] < s) k++;
+      var a0 = ramp[k - 1], a1 = ramp[k], u = (s - a0[0]) / (a1[0] - a0[0]);
+      var c0 = hexRgb(a0[1]), c1 = hexRgb(a1[1]);
+      for (var q = 0; q < 3; q++) t.push(c0[q] + (c1[q] - c0[q]) * u);
+    }
+    return t;
+  }
+  function hash(a, b) { var h = (a * 374761393 + b * 668265263) | 0; h = (h ^ (h >>> 13)) * 1274126177 | 0; return (h ^ (h >>> 16)) >>> 0; }
+
+  /* 柄物：仕入先の写真から取った主な色を、編み目の単位でちりばめる */
+  function patternPicker(p) {
+    var cols = p.map(function (x) { return calib(x.c, ropeF); }), cum = [], s = 0;
+    p.forEach(function (x) { s += x.w; cum.push(s); });
+    return function (x, y) {
+      var u = Math.floor((x * 0.82 + y * 0.57) / 9), v = Math.floor((-x * 0.57 + y * 0.82) / 5);
+      var r = (hash(u, v) % 10000) / 10000 * s;
+      for (var i = 0; i < cum.length; i++) if (r <= cum[i]) return cols[i];
+      return cols[cols.length - 1];
+    };
+  }
+
+  function draw() {
+    var r = ropeById(state.rope), m = microById(state.micro);
+    var mt = METALS[state.metal === "G" ? 1 : 0], lut = mt.orig ? null : rampLut(mt.ramp);
+    var w = photo.width, h = photo.height, src = photo.data;
+    var out = ctx.createImageData(w, h), o = out.data;
+    var origRope = r.n === "Black" && r.m === "PPM";   /* 元写真のロープは10mm PPM Black */
+    var harl = r.n === "Harlequin";
+    var rc = r.p || harl ? null : calib(r.t, ropeF);
+    var pick = r.p && !harl ? patternPicker(r.p) : null;
+    var ac = calib(m.t, accF);
+    var hw = harlD.width, hh = harlD.height, hd = harlD.data, hk = hh / 105;
+    for (var i = 0; i < src.length; i++) o[i] = src[i];
+    for (var y = 0; y < h; y++) {
+      for (var x = 0; x < w; x++) {
+        var i4 = (y * w + x) * 4, wr = maskD[i4] / 255, wa = maskD[i4 + 1] / 255;
+        if (wr > 0 && !origRope) {
+          var col = rc;
+          if (harl) { var hi = ((Math.floor(y * hk) % hh) * hw + (Math.floor(x * hk) % hw)) * 4; col = [hd[hi], hd[hi + 1], hd[hi + 2]]; }
+          else if (pick) col = pick(x, y);
+          shadeInto(o, i4, col, factor(lum(src, i4), stats.rope, 0.9) * (harl ? 0.95 : 1), wr);
+        }
+        if (wa > 0) shadeInto(o, i4, ac, factor(lum(src, i4), stats.acc, 0.7), wa);
+        var wm = maskD[i4 + 2] / 255;
+        if (wm > 0 && lut) {
+          var li = Math.round(lum(src, i4)) * 3;
+          for (var q = 0; q < 3; q++) o[i4 + q] = o[i4 + q] * (1 - wm) + lut[li + q] * wm;
+        }
+      }
+    }
+    ctx.putImageData(out, 0, 0);
+    var gt = ctx.createLinearGradient(0, 0, 0, h);
+    gt.addColorStop(0, "rgba(18,17,16,1)"); gt.addColorStop(0.3, "rgba(18,17,16,0)");
+    gt.addColorStop(0.86, "rgba(18,17,16,0)"); gt.addColorStop(1, "rgba(18,17,16,1)");
+    ctx.fillStyle = gt; ctx.fillRect(0, 0, w, h);
+    var gs = ctx.createLinearGradient(0, 0, w, 0);
+    gs.addColorStop(0, "rgba(18,17,16,0.6)"); gs.addColorStop(0.08, "rgba(18,17,16,0)");
+    gs.addColorStop(0.92, "rgba(18,17,16,0)"); gs.addColorStop(1, "rgba(18,17,16,0.6)");
+    ctx.fillStyle = gs; ctx.fillRect(0, 0, w, h);
+    /* 無断使用対策の透かし */
+    ctx.save();
+    ctx.font = "300 26px \"Helvetica Neue\", \"Segoe UI\", Arial, sans-serif";
+    ctx.fillStyle = "rgba(242,237,230,0.34)";
+    ctx.translate(600, 200); ctx.rotate(-0.26);
+    for (var wy = -260; wy <= 260; wy += 62) for (var wx = -760; wx <= 760; wx += 190) ctx.fillText("404Lab", wx + ((wy / 62) % 2 ? 95 : 0), wy);
+    ctx.restore();
+    ctx.save();
+    ctx.font = "300 18px \"Helvetica Neue\", \"Segoe UI\", Arial, sans-serif";
+    ctx.fillStyle = "rgba(242,237,230,0.6)"; ctx.textAlign = "right";
+    ctx.fillText("© 404Lab", 1176, 326);
+    ctx.restore();
+    drawTitle("404Lab   ORDER   COLOR", 600, 56);
+    showNow(r, m, mt);
+  }
+  function drawTitle(text, cx, y) {
+    ctx.font = "300 30px \"Helvetica Neue\", \"Segoe UI\", Arial, sans-serif";
+    ctx.fillStyle = "rgba(242,237,230,0.92)";
+    var sp = 9, w = 0, i;
+    for (i = 0; i < text.length; i++) w += ctx.measureText(text[i]).width + sp;
+    var x = cx - (w - sp) / 2;
+    for (i = 0; i < text.length; i++) { ctx.fillText(text[i], x, y); x += ctx.measureText(text[i]).width + sp; }
+  }
+
+  function showNow(r, m, mt) {
+    var now = $("now");
+    now.innerHTML = "";
+    function part(code, name) { var s = document.createElement("span"), b = document.createElement("b"); b.textContent = code; s.appendChild(b); s.appendChild(document.createTextNode(name)); return s; }
+    function x() { var s = document.createElement("span"); s.className = "x"; s.textContent = "×"; return s; }
+    now.appendChild(part(r.id, r.n)); now.appendChild(x()); now.appendChild(part(m.id, m.n)); now.appendChild(x());
+    var mtS = document.createElement("span"); mtS.textContent = mt.n; now.appendChild(mtS);
+    $("refRope").src = "img/rp/" + r.id + ".jpg";
+    $("refRope").alt = r.n;
+    $("capRope").textContent = "実物写真｜ロープ " + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）";
+    $("refMicro").src = "img/mp/" + m.id + ".jpg";
+    $("refMicro").alt = m.n;
+    $("capMicro").textContent = "実物写真｜マイクロコード " + m.id + " " + m.n + "（1.4mm）";
+    try { history.replaceState(null, "", "#" + r.id + "," + m.id + "," + mt.id); } catch (e) {}
+  }
+
+  /* ===== 色の一覧 ===== */
+  function chips(box, list, key, after) {
+    box.innerHTML = "";
+    list.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button"; b.textContent = c[1]; b.className = state[key] === c[0] ? "on" : "";
+      b.addEventListener("click", function () { state[key] = c[0]; chips(box, list, key, after); after(); });
+      box.appendChild(b);
+    });
+  }
+  function norm(s) { return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, ""); }
+  function swatches(box, countEl, items, folder, key) {
+    box.innerHTML = "";
+    items.forEach(function (o) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = state[key] === o.id ? "on" : "";
+      b.setAttribute("aria-label", o.id + " " + o.n);
+      var im = document.createElement("img"); im.loading = "lazy"; im.alt = ""; im.src = "img/" + folder + "/" + o.id + ".jpg";
+      var cd = document.createElement("span"); cd.className = "cd en"; cd.textContent = o.id;
+      var nm = document.createElement("span"); nm.className = "nm en"; nm.textContent = o.n;
+      b.appendChild(im); b.appendChild(cd); b.appendChild(nm);
+      b.addEventListener("click", function () {
+        state[key] = o.id;
+        var all = box.querySelectorAll("button");
+        for (var j = 0; j < all.length; j++) all[j].className = all[j] === b ? "on" : "";
+        draw();
+      });
+      box.appendChild(b);
+    });
+    countEl.textContent = items.length + " 色";
+  }
+  function renderRopes() {
+    var q = norm($("ropeFind").value.trim());
+    var items = ROPE_DATA.filter(function (o) {
+      return o.s === state.size && (state.ropeMat === "all" || o.m === state.ropeMat) &&
+        (state.ropeFam === "all" || o.f === state.ropeFam) && (!q || norm(o.id + " " + o.n).indexOf(q) >= 0);
+    });
+    swatches($("ropeSw"), $("ropeCount"), items, "r", "rope");
+  }
+  function renderMicro() {
+    var q = norm($("microFind").value.trim());
+    var items = MICRO_DATA.filter(function (o) {
+      return (state.microFam === "all" || o.f === state.microFam) && (!q || norm(o.id + " " + o.n).indexOf(q) >= 0);
+    });
+    swatches($("microSw"), $("microCount"), items, "m", "micro");
+  }
+  function renderMetal() {
+    var box = $("metal"); box.innerHTML = "";
+    METALS.forEach(function (mt) {
+      var b = document.createElement("button"); b.type = "button"; b.className = state.metal === mt.id ? "on" : "";
+      var i = document.createElement("i"); i.style.background = "linear-gradient(135deg," + mt.dot[0] + "," + mt.dot[1] + " 45%," + mt.dot[2] + ")";
+      b.appendChild(i); b.appendChild(document.createTextNode(mt.n));
+      b.addEventListener("click", function () { state.metal = mt.id; renderMetal(); draw(); });
+      box.appendChild(b);
+    });
+  }
+
+  /* ===== コピー ===== */
+  function toast(msg) { var t = $("toast"); t.textContent = msg; clearTimeout(toast.tm); toast.tm = setTimeout(function () { t.textContent = ""; }, 2500); }
+  function copyText(text, msg) {
+    function fallback() {
+      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); toast(msg); } catch (e) { toast("コピーできませんでした"); }
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { toast(msg); }, fallback);
+    else fallback();
+  }
+  $("copyBtn").addEventListener("click", function () {
+    var r = ropeById(state.rope), m = microById(state.micro), mt = METALS[state.metal === "G" ? 1 : 0];
+    copyText("【404Lab お取り寄せカラー】\nロープ：" + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）\nマイクロコード：" + m.id + " " + m.n + "\n金具：" + mt.n, "コピーしました。DMに貼り付けてお送りください");
+  });
+  $("linkBtn").addEventListener("click", function () { copyText(location.href, "リンクをコピーしました"); });
+
+  function start() {
+    var c = document.createElement("canvas"); c.width = imgs.photo.width; c.height = imgs.photo.height;
+    var x = c.getContext("2d");
+    x.drawImage(imgs.photo, 0, 0); photo = x.getImageData(0, 0, c.width, c.height);
+    x.clearRect(0, 0, c.width, c.height); x.drawImage(imgs.mask, 0, 0); maskD = x.getImageData(0, 0, c.width, c.height).data;
+    var hc = document.createElement("canvas"); hc.width = imgs.harl.width; hc.height = imgs.harl.height;
+    hc.getContext("2d").drawImage(imgs.harl, 0, 0); harlD = hc.getContext("2d").getImageData(0, 0, hc.width, hc.height);
+    stats = { rope: range(0), acc: range(1) };
+    ropeF = sampleF(0, 0.9); accF = sampleF(1, 0.7);
+
+    /* URLの #10N-003,MC-010,G から組み合わせを復元 */
+    var hs = decodeURIComponent(location.hash.slice(1)).split(",");
+    var hr = ropeById(hs[0]);
+    if (hr) { state.size = hr.s; state.rope = hr.id; } else state.rope = firstRope(state.size);
+    if (microById(hs[1])) state.micro = hs[1];
+    if (hs[2] === "G") state.metal = "G";
+
+    var tabs = $("size").querySelectorAll("button");
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].className = tabs[i].getAttribute("data-v") === state.size ? "on" : "";
+      tabs[i].addEventListener("click", function () {
+        for (var j = 0; j < tabs.length; j++) tabs[j].className = tabs[j] === this ? "on" : "";
+        state.size = this.getAttribute("data-v");
+        var cur = ropeById(state.rope), same = null;
+        ROPE_DATA.forEach(function (o) { if (o.s === state.size && cur && o.n === cur.n && o.m === cur.m) same = o.id; });
+        state.rope = same || firstRope(state.size);
+        renderRopes(); draw();
+      });
+    }
+    chips($("ropeMat"), MATS, "ropeMat", renderRopes);
+    chips($("ropeFam"), FAMS, "ropeFam", renderRopes);
+    chips($("microFam"), FAMS.filter(function (f) { return f[0] !== "mix"; }), "microFam", renderMicro);
+    $("ropeFind").addEventListener("input", renderRopes);
+    $("microFind").addEventListener("input", renderMicro);
+    renderRopes(); renderMicro(); renderMetal(); draw();
+  }
+
+  var left = 0, TEX = { photo: "assets/leash_photo.jpg", mask: "assets/mask.png", harl: "assets/rope_harl.jpg" };
+  for (var k in TEX) {
+    left++;
+    (function (key) {
+      var im = new Image();
+      im.onload = function () { imgs[key] = im; if (--left === 0) start(); };
+      im.src = TEX[key];
+    })(k);
+  }
+})();
+</script>
+</body>
+</html>
