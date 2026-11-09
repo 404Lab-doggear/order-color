@@ -29,10 +29,12 @@ p{margin:0}
 .now b{font-weight:400;color:var(--gold);margin-right:6px}
 .now .x{margin:0 10px;color:var(--gold)}
 .act{display:flex;justify-content:center;gap:10px;margin:12px 0 22px;flex-wrap:wrap}
-.act button{appearance:none;cursor:pointer;padding:11px 22px;border-radius:999px;font-size:13px;letter-spacing:.1em;font-family:inherit}
+.act button,.act a{display:inline-block;text-decoration:none;appearance:none;cursor:pointer;padding:11px 22px;border-radius:999px;font-size:13px;letter-spacing:.1em;font-family:inherit}
 .act .main{background:var(--gold);color:var(--bg);border:0;font-weight:400}
 .act .ghost{background:transparent;color:var(--gold);border:1px solid var(--gold)}
-.toast{text-align:center;font-size:12px;color:var(--gold);height:16px;margin-top:-14px;margin-bottom:10px}
+.toast{text-align:center;font-size:12px;line-height:1.7;color:var(--gold);min-height:16px;margin-top:-14px;margin-bottom:10px}
+.copyfb{-webkit-user-select:text;user-select:text;white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.9;max-width:420px;margin:0 auto 18px;padding:12px 16px;border:1px solid var(--gold);border-radius:10px}
+.copyfb[hidden]{display:none}
 .ref{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:30px}
 .ref figure{margin:0}
 .ref img{width:100%;aspect-ratio:1;object-fit:cover;display:block;border-radius:6px;background:#1c1a18}
@@ -80,10 +82,12 @@ p{margin:0}
   <p class="copy">※掲載画像の無断転載・無断使用を禁止します。© 404Lab</p>
   <p class="now" id="now"></p>
   <div class="act">
-    <button type="button" class="main" id="copyBtn">この組み合わせをコピー</button>
+    <button type="button" class="main" id="copyBtn">① この組み合わせをコピー</button>
+    <a class="ghost" href="https://ig.me/m/404lab.doggear" target="_blank" rel="noopener">② Instagramのメッセージを開く</a>
     <button type="button" class="ghost" id="linkBtn">リンクをコピー</button>
   </div>
-  <p class="toast" id="toast"></p>
+  <p class="toast" id="toast" aria-live="polite"></p>
+  <pre class="copyfb" id="copyFb" hidden></pre>
   <div class="ref">
     <figure><img id="refRope" alt=""><figcaption id="capRope"></figcaption></figure>
     <figure><img id="refMicro" alt=""><figcaption id="capMicro"></figcaption></figure>
@@ -105,7 +109,7 @@ p{margin:0}
   <p class="label en">HARDWARE<span>金具カラー</span></p>
   <div class="metal" id="metal"></div>
 
-  <p class="note">※実物の写真（10mmのリード）の色を置き換えたイメージです。柄物ロープは柄の雰囲気を再現したもので、実際の柄の出方とは異なります。実際の色・柄は下の「実物写真」でご確認ください。<br>※実物写真は仕入先 Paracord.eu の商品写真です。画面の表示環境により実際の色と異なって見える場合があります。<br>※ご注文の際は「この組み合わせをコピー」で番号をコピーして、Instagram の DM などでお知らせください。<br>※金具のGoldは変更オプション（追加料金）です。<br>※掲載画像の無断転載・無断使用を禁止します。© 404Lab</p>
+  <p class="note">※実物の写真（10mmのリード）の色を置き換えたイメージです。柄物ロープは柄の雰囲気を再現したもので、実際の柄の出方とは異なります。実際の色・柄は下の「実物写真」でご確認ください。<br>※実物写真は仕入先 Paracord.eu の商品写真です。画面の表示環境により実際の色と異なって見える場合があります。<br>※ご注文の際は「① この組み合わせをコピー」で番号をコピーしてから「② Instagramのメッセージを開く」で DM に貼り付けてお送りください。うまくコピーできないときは、画面のスクリーンショットを送っていただいても大丈夫です。<br>※金具のGoldは変更オプション（追加料金）です。<br>※掲載画像の無断転載・無断使用を禁止します。© 404Lab</p>
 </div>
 <div class="pg-links">
   <a class="pg-shop" href="https://404lab.base.shop/">ショップを見る</a>
@@ -113,7 +117,7 @@ p{margin:0}
 </div>
 <p class="pg-foot en">© 2026 404Lab All Rights Reserved.</p>
 
-<script src="data.js?v=20261004114358"></script>
+<script src="data.js?v=20261109102051"></script>
 <script>
 (function () {
   var FAMS = [["all", "すべて"], ["red", "レッド・ピンク"], ["yellow", "オレンジ・イエロー"], ["green", "グリーン"], ["blue", "ブルー"], ["purple", "パープル"], ["brown", "ブラウン・ベージュ"], ["mono", "ホワイト・グレー・ブラック"], ["mix", "柄・ミックス"]];
@@ -336,20 +340,38 @@ p{margin:0}
   }
 
   /* ===== コピー ===== */
-  function toast(msg) { var t = $("toast"); t.textContent = msg; clearTimeout(toast.tm); toast.tm = setTimeout(function () { t.textContent = ""; }, 2500); }
+  function toast(msg, stay) { var t = $("toast"); t.textContent = msg; clearTimeout(toast.tm); if (!stay) toast.tm = setTimeout(function () { t.textContent = ""; }, 4000); }
+  /* 古いブラウザやInstagram内のブラウザ向けの予備のコピー方法。
+     iPhoneは読み取り専用の欄だと選択されずに空のままコピーされることがあるため、編集できる欄で選択する */
+  function copyOld(text) {
+    var t = document.createElement("textarea");
+    t.value = text; t.contentEditable = "true";
+    t.style.position = "fixed"; t.style.top = "0"; t.style.left = "0"; t.style.opacity = "0"; t.style.fontSize = "16px";
+    document.body.appendChild(t);
+    t.focus(); t.select();
+    var rg = document.createRange(); rg.selectNodeContents(t);
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(rg);
+    t.setSelectionRange(0, text.length);
+    var r = false; try { r = document.execCommand("copy"); } catch (e) {}
+    t.blur(); document.body.removeChild(t); s.removeAllRanges();
+    return r;
+  }
   function copyText(text, msg) {
-    function fallback() {
-      var ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
-      document.body.appendChild(ta); ta.select();
-      try { document.execCommand("copy"); toast(msg); } catch (e) { toast("コピーできませんでした"); }
-      document.body.removeChild(ta);
-    }
-    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(function () { toast(msg); }, fallback);
-    else fallback();
+    var fb = $("copyFb"); fb.hidden = true;
+    var p = (navigator.clipboard && window.isSecureContext)
+      ? navigator.clipboard.writeText(text).catch(function () { if (!copyOld(text)) throw new Error("copy"); })
+      : (copyOld(text) ? Promise.resolve() : Promise.reject());
+    p.then(function () { toast(msg); }, function () {
+      /* 自動でコピーできないときは、内容を表示して選択しておく */
+      fb.textContent = text; fb.hidden = false;
+      var r = document.createRange(); r.selectNodeContents(fb);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      toast("自動でコピーできませんでした。下の内容を長押ししてコピーするか、スクリーンショットを撮ってください。", true);
+    });
   }
   $("copyBtn").addEventListener("click", function () {
     var r = ropeById(state.rope), m = microById(state.micro), mt = METALS[state.metal === "G" ? 1 : 0];
-    copyText("【404Lab お取り寄せカラー】\nロープ：" + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）\nアクセントコード：" + m.id + " " + m.n + "\n金具：" + mt.n, "コピーしました。DMに貼り付けてお送りください");
+    copyText("【404Lab お取り寄せカラー】\nロープ：" + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）\nアクセントコード：" + m.id + " " + m.n + "\n金具：" + mt.n, "コピーしました。②のボタンでメッセージを開き、貼り付けて送信してください");
   });
   $("linkBtn").addEventListener("click", function () { copyText(location.href, "リンクをコピーしました"); });
 
