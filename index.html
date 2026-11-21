@@ -32,6 +32,10 @@ p{margin:0}
 .mini.on{opacity:1;visibility:visible;transform:none}
 .mini canvas{display:block;width:100%;height:auto;border-radius:5px}
 .mini p{margin:4px 2px 1px;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif;font-size:9px;letter-spacing:.06em;line-height:1.35;color:var(--tx);text-align:center}
+.mini .mth{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:5px;margin-top:4px}
+.mini .mth img{width:40px;height:40px;flex:none;object-fit:cover;border-radius:4px;background:#1c1a18}
+.mini .mth img[hidden]{display:none}
+.mini .mth p{flex:1 1 160px;margin:0 2px;text-align:center}
 .act{display:flex;justify-content:center;gap:10px;margin:12px 0 22px;flex-wrap:wrap}
 .act button,.act a{display:inline-block;text-decoration:none;appearance:none;cursor:pointer;padding:11px 22px;border-radius:999px;font-size:13px;letter-spacing:.1em;font-family:inherit}
 .act .main{background:var(--gold);color:var(--bg);border:0;font-weight:400}
@@ -121,7 +125,7 @@ p{margin:0}
 </div>
 <p class="pg-foot en">© 2026 404Lab All Rights Reserved.</p>
 
-<script src="data.js?v=20261121234136"></script>
+<script src="data.js?v=20261122010650"></script>
 <script>
 (function () {
   var FAMS = [["all", "すべて"], ["red", "レッド・ピンク"], ["yellow", "オレンジ・イエロー"], ["green", "グリーン"], ["blue", "ブルー"], ["purple", "パープル"], ["brown", "ブラウン・ベージュ"], ["mono", "ホワイト・グレー・ブラック"], ["mix", "柄・ミックス"]];
@@ -433,11 +437,23 @@ p{margin:0}
     var mc = document.createElement("canvas");
     mc.width = Math.round(cv.width / 2); mc.height = Math.round(cv.height / 2);
     var mx = mc.getContext("2d"), cap = document.createElement("p");
-    mini.appendChild(mc); mini.appendChild(cap); document.body.appendChild(mini);
+    /* 小窓の下段：実物（仕入れ先の商品写真）のロープ・アクセントコードを小さく並べる */
+    var row = document.createElement("div"), t1 = document.createElement("img"), t2 = document.createElement("img");
+    row.className = "mth"; t1.alt = ""; t2.alt = "";
+    t1.onerror = t2.onerror = function () { this.removeAttribute("src"); this.hidden = true; };   /* 読めないときは隠す */
+    row.appendChild(t1); row.appendChild(t2); row.appendChild(cap);
+    function thumb(el, im) {
+      var s = im && !(im.closest("figure") || im).hidden && im.getAttribute("src");
+      if (!s) { el.hidden = true; return; }
+      el.hidden = false; if (el.getAttribute("src") !== s) el.src = s;
+    }
+    function thumbs() { thumb(t1, $("refRope")); thumb(t2, $("refMicro")); }
+    mini.appendChild(mc); mini.appendChild(row); document.body.appendChild(mini);
     var last = $("metal");
     function sync() {
       mx.clearRect(0, 0, mc.width, mc.height);
       mx.drawImage(cv, 0, 0, mc.width, mc.height);
+      setTimeout(thumbs, 0);   /* 商品写真は描画のあとに切り替わるので、少し待ってから読む */
       cap.textContent = Array.prototype.map.call($("now").children, function (s) {
         var b = s.querySelector("b"); return b ? b.textContent + " " + s.textContent.slice(b.textContent.length) : s.textContent;
       }).join(" ");
