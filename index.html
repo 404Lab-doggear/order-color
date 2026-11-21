@@ -28,6 +28,10 @@ p{margin:0}
 .now{text-align:center;font-size:13px;letter-spacing:.08em;margin:16px 0 6px;line-height:1.8}
 .now b{font-weight:400;color:var(--gold);margin-right:6px}
 .now .x{margin:0 10px;color:var(--gold)}
+.mini{position:fixed;top:10px;right:10px;z-index:9999;width:min(calc(100vw - 20px),460px);background:var(--bg);border:1px solid var(--gold);border-radius:8px;padding:4px;box-shadow:0 6px 22px rgba(0,0,0,.55);opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .25s,transform .25s,visibility .25s;cursor:pointer}
+.mini.on{opacity:1;visibility:visible;transform:none}
+.mini canvas{display:block;width:100%;height:auto;border-radius:5px}
+.mini p{margin:4px 2px 1px;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif;font-size:9px;letter-spacing:.06em;line-height:1.35;color:var(--tx);text-align:center}
 .act{display:flex;justify-content:center;gap:10px;margin:12px 0 22px;flex-wrap:wrap}
 .act button,.act a{display:inline-block;text-decoration:none;appearance:none;cursor:pointer;padding:11px 22px;border-radius:999px;font-size:13px;letter-spacing:.1em;font-family:inherit}
 .act .main{background:var(--gold);color:var(--bg);border:0;font-weight:400}
@@ -117,7 +121,7 @@ p{margin:0}
 </div>
 <p class="pg-foot en">© 2026 404Lab All Rights Reserved.</p>
 
-<script src="data.js?v=20261109173915"></script>
+<script src="data.js?v=20261121234136"></script>
 <script>
 (function () {
   var FAMS = [["all", "すべて"], ["red", "レッド・ピンク"], ["yellow", "オレンジ・イエロー"], ["green", "グリーン"], ["blue", "ブルー"], ["purple", "パープル"], ["brown", "ブラウン・ベージュ"], ["mono", "ホワイト・グレー・ブラック"], ["mix", "柄・ミックス"]];
@@ -421,6 +425,38 @@ p{margin:0}
       im.src = TEX[key];
     })(k);
   }
+
+  /* 写真が画面の上に隠れたら、小窓で追従表示する（スマホで色を選びながら確認できるように）。小窓をタップすると写真まで戻る */
+  (function () {
+    var mini = document.createElement("div");
+    mini.className = "mini"; mini.setAttribute("aria-hidden", "true");
+    var mc = document.createElement("canvas");
+    mc.width = Math.round(cv.width / 2); mc.height = Math.round(cv.height / 2);
+    var mx = mc.getContext("2d"), cap = document.createElement("p");
+    mini.appendChild(mc); mini.appendChild(cap); document.body.appendChild(mini);
+    var last = $("metal");
+    function sync() {
+      mx.clearRect(0, 0, mc.width, mc.height);
+      mx.drawImage(cv, 0, 0, mc.width, mc.height);
+      cap.textContent = Array.prototype.map.call($("now").children, function (s) {
+        var b = s.querySelector("b"); return b ? b.textContent + " " + s.textContent.slice(b.textContent.length) : s.textContent;
+      }).join(" ");
+    }
+    var queued = false;
+    function place() {
+      queued = false;
+      var a = cv.getBoundingClientRect(), z = last.getBoundingClientRect();
+      var show = a.bottom < 40 && z.bottom > 120;
+      if (show && !mini.classList.contains("on")) sync();
+      mini.classList.toggle("on", show);
+    }
+    function onScroll() { if (!queued) { queued = true; requestAnimationFrame(place); } }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    mini.addEventListener("click", function () { cv.scrollIntoView({ behavior: "smooth", block: "center" }); });
+    var baseDraw = draw;
+    draw = function () { baseDraw.apply(this, arguments); sync(); };
+  })();
 })();
 </script>
 </body>
