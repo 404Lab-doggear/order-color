@@ -62,9 +62,7 @@ p{margin:0}
 .sw .cd{font-size:10px;color:var(--gold);letter-spacing:.04em}
 .sw .nm{font-size:9px;line-height:1.3;text-align:center;word-break:break-word}
 .sw button.on .nm{color:var(--tx)}
-.sw button.oos{cursor:default}
-.sw button.oos img{filter:grayscale(1);opacity:.35}
-.sw button.oos .cd,.sw button.oos .nm{color:var(--dim)}
+.now .oos-t{font-size:10px;letter-spacing:.04em;color:#f2ede6;background:#7a2e2e;padding:1px 6px;border-radius:3px;margin-left:6px;white-space:nowrap}
 .sw .oos-b{font-size:8px;letter-spacing:.05em;color:#f2ede6;background:#7a2e2e;padding:2px 5px;border-radius:3px}
 .metal{display:flex;gap:22px;margin-bottom:30px}
 .metal button{appearance:none;border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--sub);font-size:10px;letter-spacing:.1em;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif}
@@ -131,8 +129,8 @@ p{margin:0}
 </div>
 <p class="pg-foot en">© 2026 404Lab All Rights Reserved.</p>
 
-<script src="../data.js?v=20261124234204"></script>
-<script src="../my_stock.js?v=20261124234204"></script>
+<script src="../data.js?v=20261124235711"></script>
+<script src="../my_stock.js?v=20261124235711"></script>
 <script>
 (function () {
   /* 手元に在庫がある色（my_stock.js＝在庫版シミュレーターから自動生成）は、仕入先で在庫切れ("o":1)でも選べるようにする */
@@ -291,7 +289,9 @@ p{margin:0}
     now.innerHTML = "";
     function part(code, name) { var s = document.createElement("span"), b = document.createElement("b"); b.textContent = code; s.appendChild(b); s.appendChild(document.createTextNode(name)); return s; }
     function x() { var s = document.createElement("span"); s.className = "x"; s.textContent = "×"; return s; }
-    now.appendChild(part(r.id, r.n)); now.appendChild(x()); now.appendChild(part(m.id, m.n)); now.appendChild(x());
+    /* 在庫切れの色を選んだときは、名前の横に印を出す（押せるけど、入荷待ちだとわかるように） */
+    function oosTag(s, o) { if (o.o) { var t = document.createElement("span"); t.className = "oos-t"; t.textContent = " 在庫切れ（入荷待ち）"; s.appendChild(t); } return s; }
+    now.appendChild(oosTag(part(r.id, r.n), r)); now.appendChild(x()); now.appendChild(oosTag(part(m.id, m.n), m)); now.appendChild(x());
     var mtS = document.createElement("span"); mtS.textContent = mt.n; now.appendChild(mtS);
     $("refRope").src = "../img/rp/" + r.id + ".jpg";
     $("refRope").alt = r.n;
@@ -324,7 +324,7 @@ p{margin:0}
       var nm = document.createElement("span"); nm.className = "nm en"; nm.textContent = o.n;
       b.appendChild(im); b.appendChild(cd); b.appendChild(nm);
       if (o.o) {
-        b.className += " oos"; b.disabled = true;
+        b.className += " oos";   /* 在庫切れでも押して組み合わせを試せる */
         var ob = document.createElement("span"); ob.className = "oos-b en"; ob.textContent = "OUT OF STOCK";
         b.appendChild(ob);
       }
@@ -397,7 +397,8 @@ p{margin:0}
   }
   $("copyBtn").addEventListener("click", function () {
     var r = ropeById(state.rope), m = microById(state.micro), mt = METALS[state.metal === "G" ? 1 : 0];
-    copyText("【404Lab お取り寄せカラー｜迷子札チョーカー】\nロープ：" + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）\nアクセントコード：" + m.id + " " + m.n + "\n金具：" + mt.n, "コピーしました。②で公式LINEかInstagramのDMを開き、貼り付けて送信してください");
+    var oosN = function (o) { return o.o ? "　※在庫切れ（入荷待ち）" : ""; };
+    copyText("【404Lab お取り寄せカラー｜迷子札チョーカー】\nロープ：" + r.id + " " + r.n + "（" + r.s + "mm " + MAT_JA[r.m] + "）" + oosN(r) + "\nアクセントコード：" + m.id + " " + m.n + oosN(m) + "\n金具：" + mt.n,"コピーしました。②で公式LINEかInstagramのDMを開き、貼り付けて送信してください");
   });
   $("linkBtn").addEventListener("click", function () { copyText(location.href, "リンクをコピーしました"); });
 
@@ -425,7 +426,7 @@ p{margin:0}
         for (var j = 0; j < tabs.length; j++) tabs[j].className = tabs[j] === this ? "on" : "";
         state.size = this.getAttribute("data-v");
         var cur = ropeById(state.rope), same = null;
-        ROPE_DATA.forEach(function (o) { if (o.s === state.size && cur && o.n === cur.n && o.m === cur.m && !o.o) same = o.id; });
+        ROPE_DATA.forEach(function (o) { if (o.s === state.size && cur && o.n === cur.n && o.m === cur.m) same = o.id; });
         state.rope = same || firstRope(state.size);
         renderRopes(); draw();
       });
