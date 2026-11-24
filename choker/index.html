@@ -131,9 +131,16 @@ p{margin:0}
 </div>
 <p class="pg-foot en">© 2026 404Lab All Rights Reserved.</p>
 
-<script src="../data.js?v=20261124233916"></script>
+<script src="../data.js?v=20261124234204"></script>
+<script src="../my_stock.js?v=20261124234204"></script>
 <script>
 (function () {
+  /* 手元に在庫がある色（my_stock.js＝在庫版シミュレーターから自動生成）は、仕入先で在庫切れ("o":1)でも選べるようにする */
+  if (typeof MY_STOCK !== "undefined") {
+    var mine = {};
+    MY_STOCK.forEach(function (id) { mine[id] = 1; });
+    ROPE_DATA.concat(MICRO_DATA).forEach(function (o) { if (o.o && mine[o.id]) o.o = 0; });
+  }
   var FAMS = [["all", "すべて"], ["red", "レッド・ピンク"], ["yellow", "オレンジ・イエロー"], ["green", "グリーン"], ["blue", "ブルー"], ["purple", "パープル"], ["brown", "ブラウン・ベージュ"], ["mono", "ホワイト・グレー・ブラック"], ["mix", "柄・ミックス"]];
   var MATS = [["all", "すべての素材"], ["Nylon", "ナイロン"], ["PPM", "PPM"]];
   var MAT_JA = { Nylon: "ナイロン", PPM: "PPM" };
