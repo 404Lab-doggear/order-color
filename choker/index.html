@@ -62,6 +62,10 @@ p{margin:0}
 .sw .cd{font-size:10px;color:var(--gold);letter-spacing:.04em}
 .sw .nm{font-size:9px;line-height:1.3;text-align:center;word-break:break-word}
 .sw button.on .nm{color:var(--tx)}
+.sw button.oos{cursor:default}
+.sw button.oos img{filter:grayscale(1);opacity:.35}
+.sw button.oos .cd,.sw button.oos .nm{color:var(--dim)}
+.sw .oos-b{font-size:8px;letter-spacing:.05em;color:#f2ede6;background:#7a2e2e;padding:2px 5px;border-radius:3px}
 .metal{display:flex;gap:22px;margin-bottom:30px}
 .metal button{appearance:none;border:0;background:transparent;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--sub);font-size:10px;letter-spacing:.1em;font-family:"Helvetica Neue","Segoe UI",Arial,sans-serif}
 .metal i{width:48px;height:48px;border-radius:50%;border:3px solid var(--bg);box-shadow:0 0 0 1px #3a3632}
@@ -127,7 +131,7 @@ p{margin:0}
 </div>
 <p class="pg-foot en">© 2026 404Lab All Rights Reserved.</p>
 
-<script src="../data.js?v=20261122010650"></script>
+<script src="../data.js?v=20261124221000"></script>
 <script>
 (function () {
   var FAMS = [["all", "すべて"], ["red", "レッド・ピンク"], ["yellow", "オレンジ・イエロー"], ["green", "グリーン"], ["blue", "ブルー"], ["purple", "パープル"], ["brown", "ブラウン・ベージュ"], ["mono", "ホワイト・グレー・ブラック"], ["mix", "柄・ミックス"]];
@@ -148,7 +152,7 @@ p{margin:0}
   function lum(d, i) { return 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; }
   function ropeById(id) { for (var i = 0; i < ROPE_DATA.length; i++) if (ROPE_DATA[i].id === id) return ROPE_DATA[i]; return null; }
   function microById(id) { for (var i = 0; i < MICRO_DATA.length; i++) if (MICRO_DATA[i].id === id) return MICRO_DATA[i]; return null; }
-  function firstRope(size) { for (var i = 0; i < ROPE_DATA.length; i++) if (ROPE_DATA[i].s === size) return ROPE_DATA[i].id; }
+  function firstRope(size) { for (var i = 0; i < ROPE_DATA.length; i++) if (ROPE_DATA[i].s === size && !ROPE_DATA[i].o) return ROPE_DATA[i].id; }
 
   /* ===== 写真の明暗を保ったまま色を置き換える（既存シミュレーターと同じ方式） ===== */
   function range(ch) {
@@ -312,10 +316,16 @@ p{margin:0}
       var cd = document.createElement("span"); cd.className = "cd en"; cd.textContent = o.id;
       var nm = document.createElement("span"); nm.className = "nm en"; nm.textContent = o.n;
       b.appendChild(im); b.appendChild(cd); b.appendChild(nm);
+      if (o.o) {
+        b.className += " oos"; b.disabled = true;
+        var ob = document.createElement("span"); ob.className = "oos-b en"; ob.textContent = "OUT OF STOCK";
+        b.appendChild(ob);
+      }
       b.addEventListener("click", function () {
         state[key] = o.id;
         var all = box.querySelectorAll("button");
-        for (var j = 0; j < all.length; j++) all[j].className = all[j] === b ? "on" : "";
+        for (var j = 0; j < all.length; j++) all[j].classList.remove("on");
+        b.classList.add("on");
         draw();
       });
       box.appendChild(b);
@@ -408,7 +418,7 @@ p{margin:0}
         for (var j = 0; j < tabs.length; j++) tabs[j].className = tabs[j] === this ? "on" : "";
         state.size = this.getAttribute("data-v");
         var cur = ropeById(state.rope), same = null;
-        ROPE_DATA.forEach(function (o) { if (o.s === state.size && cur && o.n === cur.n && o.m === cur.m) same = o.id; });
+        ROPE_DATA.forEach(function (o) { if (o.s === state.size && cur && o.n === cur.n && o.m === cur.m && !o.o) same = o.id; });
         state.rope = same || firstRope(state.size);
         renderRopes(); draw();
       });
